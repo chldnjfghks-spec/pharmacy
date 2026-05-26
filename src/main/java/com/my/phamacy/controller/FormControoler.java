@@ -4,6 +4,7 @@ package com.my.phamacy.controller;
 import com.my.phamacy.dto.DocumentDto;
 import com.my.phamacy.dto.KakaoApiResponseDto;
 import com.my.phamacy.service.KakaoAddressSearchService;
+import com.my.phamacy.service.KakaoCategorySearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 public class FormControoler {
     private final KakaoAddressSearchService kakaoAddressSearchService;
+    private final KakaoCategorySearchService kakaoCategorySearchService;
     @GetMapping
     public String mainForm(){
         return "main";
@@ -34,6 +36,10 @@ public class FormControoler {
         DocumentDto documentDto = kakaoApiResponseDto
                 .getDocumentList().get(0);
         log.info("도큐먼트 만 출력 :" + documentDto);
+
+        KakaoApiResponseDto kakaoApiCategoryDto = kakaoCategorySearchService.resultCategorySearch(
+                documentDto.getLatitude(), documentDto.getLongitude());
+        log.info("카테고리 검색 결과 : " + kakaoApiCategoryDto);
         return "output";
     }
 }
