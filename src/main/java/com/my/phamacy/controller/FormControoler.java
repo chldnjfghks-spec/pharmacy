@@ -3,14 +3,18 @@ package com.my.phamacy.controller;
 
 import com.my.phamacy.dto.DocumentDto;
 import com.my.phamacy.dto.KakaoApiResponseDto;
+import com.my.phamacy.dto.OutputDto;
 import com.my.phamacy.service.KakaoAddressSearchService;
 import com.my.phamacy.service.KakaoCategorySearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,7 +33,7 @@ public class FormControoler {
     }
 
     @PostMapping("/search")
-    public String searchAddress(@RequestParam("address")String address){
+    public String searchAddress(@RequestParam("address")String address, Model model){
         KakaoApiResponseDto kakaoApiResponseDto = kakaoAddressSearchService.requestAddressSearch(address);
         log.info("결과 :" + kakaoApiResponseDto);
         // 결과중 Documents만 빼서 dto에 저장
@@ -40,6 +44,13 @@ public class FormControoler {
         KakaoApiResponseDto kakaoApiCategoryDto = kakaoCategorySearchService.resultCategorySearch(
                 documentDto.getLatitude(), documentDto.getLongitude());
         log.info("카테고리 검색 결과 : " + kakaoApiCategoryDto);
+
+        //3. 출력양식 Dto에 맞춰서 변화한 후 모델에 담아 출력폼으로 보낸다.
+        List<OutputDto> outputDtoList =
+                kakaoCategorySearchService.makeOutputDto(
+                        kakaoApiCategoryDto.getDocumentList()
+                );
+        model.addAttribute("outputList", outputDtoList);
         return "output";
     }
 }
